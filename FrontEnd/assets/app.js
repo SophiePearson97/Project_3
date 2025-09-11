@@ -1,8 +1,11 @@
+
+console.log('app.js loaded');
+document.addEventListener('DOMContentLoaded', () => console.log('DOM ready'));
 const API_BASE = 'http://localhost:5678/api';
 
 // Select DOM elements
 const galleryEl = document.querySelector('.gallery');
-const filtersEl = document.querySelector('.filters');
+const filtersEl = document.getElementById('filters');
 
 // Global storage for works
 let allWorks = [];
@@ -34,34 +37,33 @@ async function fetchCategories() {
 
 // --- RENDER GALLERY ---
 function createFigureFromWork(work) {
-  let figure = document.createElement('figure');
+  const figure = document.createElement('figure');
 
-  let img = document.createElement('img');
+  const img = document.createElement('img');
   img.src = work.imageUrl;
-  img.alt = work.title;
+  img.alt = work.title || 'Project';
 
-  let caption = document.createElement('figcaption');
-  caption.textContent = work.title;
+  const caption = document.createElement('figcaption');
+  caption.textContent = work.title || 'Untitled';
 
   figure.appendChild(img);
   figure.appendChild(caption);
-
   return figure;
 }
 
 function showWorks(worksArray) {
-  clearGallery(); 
+  clearGallery();
 
   if (worksArray.length === 0) {
-    let p = document.createElement('p');
+    const p = document.createElement('p');
     p.textContent = 'No projects to display.';
     galleryEl.appendChild(p);
     return;
   }
 
   for (let i = 0; i < worksArray.length; i++) {
-    let work = worksArray[i];
-    let figure = createFigureFromWork(work);
+    const work = worksArray[i];
+    const figure = createFigureFromWork(work);
     galleryEl.appendChild(figure);
   }
 }
@@ -74,7 +76,7 @@ function setActiveFilterButton(button) {
 }
 
 function buildFilters(categories) {
-  clearFilters(); // empty before adding new ones
+  clearFilters();
 
   // "All" button
   let allBtn = document.createElement('button');

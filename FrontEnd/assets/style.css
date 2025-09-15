@@ -197,7 +197,7 @@ footer nav ul {
   justify-content: center;
   align-items: center;
   min-height: 80vh;
-  background-color: #fefdf8; /* light beige background */
+  background-color: #fefdf8;
 }
 
 .login-container {
@@ -214,7 +214,6 @@ footer nav ul {
   margin-bottom: 20px;
   color: #1D6154;
 }
-
 
 .login-container form {
   display: flex;
@@ -233,6 +232,11 @@ footer nav ul {
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 1rem;
+}
+
+.login-button {
+  margin-top: 20px;
+  align-self: center;
 }
 
 .login-btn {
@@ -259,3 +263,6 @@ footer nav ul {
 .forgot-password:hover {
   text-decoration: underline;
 }
+
+.hidden { display: none; }
+.error  { color:#B00020; font-size:0.9rem; margin-top:6px; }

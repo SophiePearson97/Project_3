@@ -7,6 +7,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
 	<meta name="description" content="">
 	<link rel="stylesheet" href="./assets/style.css">
 </head>
@@ -18,7 +19,8 @@
 		<ul>
 			<li><a href="index.html">projects</a></li>
             <li><a href="#contact">contact</a></li>
-            <li><a href="login.html">login</a></li>
+            <li><a id="login-link" href="login.html">login</a></li>
+            <li><a id="logout-link" href="#" style="display:none">logout</a></li>
 			<li><img src="./assets/icons/instagram.png" alt="Instagram"></li>
 		</ul>
 	</nav>
@@ -37,6 +39,9 @@
 	</section>
 	<section id="portfolio">
 		<h2>My Projects</h2>
+		<nav id="edit-projects-btn" style="display:none;">Edit
+			<i class="fa-solid fa-pen-to-square"></i></nav>
+		<br>
         <div id="filters" class="filters"></div>
         <div class="gallery"></div>
     </section>
@@ -53,6 +58,45 @@
 			<input type="submit" value="Send">
 		</form>
 	</section>
+
+<!--Modal-->
+<div id="modal" class="modal" hidden aria-hidden="true">
+  <div class="modal-content">
+    <button id="modal-close" class="modal-close">×</button>
+    <h2>Add photo</h2>
+
+<form id="modal-form" class="modal-form">
+
+  <!-- Upload box -->
+  <div class="upload-box">
+    <div class="upload-placeholder" id="upload-placeholder">
+      <div class="upload-icon" aria-hidden="true"><i class="fa-solid fa-image"></i></div>
+      <label for="image-input" class="upload-btn">+ Add photo</label>
+      <div class="upload-hint">jpg, png • max 4 MB</div>
+    </div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="image-input" accept="image/*" hidden required>
+  </div>
+
+  <!-- Title -->
+  <label for="title-input" class="field-label">Title</label>
+  <input id="title-input" type="text" class="field-control" required placeholder="">
+
+  <!-- Category -->
+  <label for="category-select" class="field-label">Category</label>
+  <select id="category-select" class="field-control" required>
+    <option value="">Select a category…</option>
+  </select>
+
+  <hr class="modal-divider">
+
+  <p id="modal-error" class="form-error" hidden></p>
+
+  <button id="modal-submit" type="submit" class="confirm-btn" disabled>Confirm</button>
+</form>
+  </div>
+</div>
 </main>
 
 <footer>

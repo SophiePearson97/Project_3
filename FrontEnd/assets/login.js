@@ -6,8 +6,9 @@ const form = document.getElementById('login-form');
 const emailEl = document.getElementById('email');
 const passwordEl = document.getElementById('password');
 const errorEl = document.getElementById('login-error');
+const loginbutton = document.getElementById('submit-button');
 
-form.addEventListener('submit', async (e) => {
+loginbutton.addEventListener('click', async (e) => {
   e.preventDefault();
   errorEl.style.display = 'none';
 
@@ -29,8 +30,9 @@ form.addEventListener('submit', async (e) => {
       return;
     }
 
-    const data = await res.json();
-    localStorage.setItem('token', data.token);
+    const data = await res.json(); 
+localStorage.setItem('token', data.token);
+window.location.href = 'index.html';
 
     // Admin?
     if (data.isAdmin) {

@@ -1,7 +1,6 @@
 // assets/login.js
 console.log('login.js loaded');
 
-const API_BASE = 'http://127.0.0.1:5678/api';
 const form = document.getElementById('login-form');
 const emailEl = document.getElementById('email');
 const passwordEl = document.getElementById('password');
@@ -34,12 +33,6 @@ loginbutton.addEventListener('click', async (e) => {
 localStorage.setItem('token', data.token);
 window.location.href = 'index.html';
 
-    // Admin?
-    if (data.isAdmin) {
-      localStorage.setItem('role', 'admin');
-    } else {
-      localStorage.setItem('role', 'user');
-    }
 
     // Redirect to home
     window.location.href = 'index.html';

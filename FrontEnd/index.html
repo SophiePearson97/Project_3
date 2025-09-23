@@ -38,10 +38,13 @@
 		</article>
 	</section>
 	<section id="portfolio">
+		<div class="portfolio-title">
 		<h2>My Projects</h2>
-		<nav id="edit-projects-btn" style="display:none;">Edit
-			<i class="fa-solid fa-pen-to-square"></i></nav>
-		<br>
+    <button id="edit-projects-btn" class="edit-link">
+      <i class="fa-regular fa-pen-to-square"></i>
+      Edit
+    </button>
+		</div>
         <div id="filters" class="filters"></div>
         <div class="gallery"></div>
     </section>
@@ -59,42 +62,64 @@
 		</form>
 	</section>
 
-<!--Modal-->
-<div id="modal" class="modal" hidden aria-hidden="true">
-  <div class="modal-content">
-    <button id="modal-close" class="modal-close">×</button>
-    <h2>Add photo</h2>
-
-<form id="modal-form" class="modal-form">
-
-  <!-- Upload box -->
-  <div class="upload-box">
-    <div class="upload-placeholder" id="upload-placeholder">
-      <div class="upload-icon" aria-hidden="true"><i class="fa-solid fa-image"></i></div>
-      <label for="image-input" class="upload-btn">+ Add photo</label>
-      <div class="upload-hint">jpg, png • max 4 MB</div>
+<!-- Modal -->
+<div id="modal" class="modal" hidden>
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    
+    <!-- Header -->
+    <div class="modal-header">
+      <button id="modal-back" class="icon-btn" aria-label="Back" hidden>←</button>
+      <h2 id="modal-title" class="modal-title">Add photo</h2>
+      <button id="modal-close" class="modal-close" aria-label="Close">×</button>
     </div>
 
-    <!-- Hidden file input -->
-    <input type="file" id="image-input" accept="image/*" hidden required>
-  </div>
+    <!-- SCREEN 1: GALLERY -->
+    <div id="modal-gallery">
+      <div id="thumbs" class="thumbs-grid"></div>
 
-  <!-- Title -->
-  <label for="title-input" class="field-label">Title</label>
-  <input id="title-input" type="text" class="field-control" required placeholder="">
+      <hr class="modal-divider">
 
-  <!-- Category -->
-  <label for="category-select" class="field-label">Category</label>
-  <select id="category-select" class="field-control" required>
-    <option value="">Select a category…</option>
-  </select>
+      <button id="open-add-photo" class="confirm-btn" type="button">Add a photo</button>
+    </div>
 
-  <hr class="modal-divider">
+    <!-- SCREEN 2: ADD PHOTO -->
+    <div id="modal-add" hidden>
+      <form id="modal-form" class="modal-form">
 
-  <p id="modal-error" class="form-error" hidden></p>
+        <!-- Upload box -->
+        <div class="upload-box">
+          <div class="upload-placeholder" id="upload-placeholder">
+            <div class="upload-icon" aria-hidden="true"><i class="fa-solid fa-image"></i></div>
+            <label for="image-input" class="upload-btn">+ Add photo</label>
+            <div class="upload-hint">jpg, png • max 4 MB</div>
+          </div>
 
-  <button id="modal-submit" type="submit" class="confirm-btn" disabled>Confirm</button>
-</form>
+          <!-- Hidden file input -->
+          <input type="file" id="image-input" accept="image/*" hidden required>
+
+          <!-- Preview  -->
+          <div id="image-preview" hidden>
+            <img id="preview-img" alt="Image preview">
+          </div>
+        </div>
+
+        <!-- Title -->
+        <label for="title-input" class="field-label">Title</label>
+        <input id="title-input" type="text" class="field-control" required placeholder="">
+
+        <!-- Category -->
+        <label for="category-select" class="field-label">Category</label>
+        <select id="category-select" class="field-control" required>
+          <option value="">Select a category…</option>
+        </select>
+
+        <hr class="modal-divider">
+
+        <p id="modal-error" class="form-error" hidden></p>
+
+        <button id="modal-submit" type="submit" class="confirm-btn" disabled>Confirm</button>
+      </form>
+    </div>
   </div>
 </div>
 </main>
@@ -106,6 +131,7 @@
 		</ul>
 	</nav>
 </footer>
+<script src="./assets/common.js"></script>
 <script src="./assets/app.js"></script>
 </body>
 </html>

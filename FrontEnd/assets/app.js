@@ -1,18 +1,14 @@
 // app.js
-console.log('app.js loaded');
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM ready');
 
-  // ====== CONFIG ======
-  const API_BASE = 'http://localhost:5678/api';
 
   // ====== DOM REFERENCES ======
   // Gallery + filters
   const galleryEl      = document.querySelector('.gallery');
   const filtersEl      = document.getElementById('filters');
 
-  // Admin / modal UI
+// User inputs
   const editBtn        = document.getElementById('edit-projects-btn');
   const modalEl        = document.getElementById('modal');
   const modalCloseBtn  = document.getElementById('modal-close');
@@ -28,44 +24,63 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalErrorEl   = document.getElementById('modal-error');
   const uploadPlaceholder = document.getElementById('upload-placeholder');
 
-  // Navbar auth links
-  const loginLink  = document.getElementById('login-link');
-  const logoutLink = document.getElementById('logout-link');
+  const backBtn        = document.getElementById('modal-back');
+  const galleryScreen  = document.getElementById('modal-gallery');
+  const thumbsWrap     = document.getElementById('thumbs');
+  const openAddBtn     = document.getElementById('open-add-photo');
+  const addScreen      = document.getElementById('modal-add');
 
-  // ====== STATE ======
+  const loginLink      = document.getElementById('login-link');
+  const logoutLink     = document.getElementById('logout-link');
+
+  // ====
   let allWorks = [];
   let allCategories = [];
 
-  // ====== SMALL HELPERS ======
+  // ====
   function clearGallery() { if (galleryEl) galleryEl.innerHTML = ''; }
   function clearFilters() { if (filtersEl) filtersEl.innerHTML = ''; }
   function clearAll() { clearGallery(); clearFilters(); }
 
-  // Toggle Login/Logout and Edit button based on token in localStorage
-  function showEditIfLoggedIn() {
-    const token = localStorage.getItem('token');
-    if (editBtn) editBtn.style.display = token ? 'inline-block' : 'none';
-  }
+  // Login/Logout, Edit button, and Filters
   function updateAuthLinks() {
     const token = localStorage.getItem('token');
+
     if (loginLink)  loginLink.style.display  = token ? 'none'  : 'inline';
     if (logoutLink) logoutLink.style.display = token ? 'inline': 'none';
-    showEditIfLoggedIn();
+    if (editBtn)    editBtn.style.display    = token ? 'inline-block' : 'none';
+    if (filtersEl)  filtersEl.style.display  = token ? 'none' : 'flex';
   }
 
   // ====== API CALLS ======
-  async function fetchWorks() {
+async function fetchWorks() {
+  try {
     const res = await fetch(`${API_BASE}/works`);
-    if (!res.ok) throw new Error('GET /works failed: ' + res.status);
-    return res.json();
+    if (!res.ok) {
+      throw new Error('GET /works failed: ' + res.status);
+    }
+    return await res.json();
+  } catch (err) {
+    console.error('Error fetching works:', err);
+    return [];
   }
-  async function fetchCategories() {
-    const res = await fetch(`${API_BASE}/categories`);
-    if (!res.ok) throw new Error('GET /categories failed: ' + res.status);
-    return res.json();
-  }
+}
 
-  // ====== RENDER GALLERY ======
+async function fetchCategories() {
+  try {
+    const res = await fetch(`${API_BASE}/categories`);
+    if (!res.ok) {
+      throw new Error('GET /categories failed: ' + res.status);
+    }
+    return await res.json();
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+    return [];
+  }
+}
+
+  // ====== GALLERY ======
+
   function createFigureFromWork(work) {
     const figure = document.createElement('figure');
 
@@ -106,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function buildFilters(categories) {
     clearFilters();
 
-    // "All" button
     const allBtn = document.createElement('button');
     allBtn.type = 'button';
     allBtn.textContent = 'All';
@@ -117,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     filtersEl.appendChild(allBtn);
 
-    // Category buttons
     for (let i = 0; i < categories.length; i++) {
       const category = categories[i];
       const btn = document.createElement('button');
@@ -132,11 +145,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ====== MODAL: BASIC OPEN/CLOSE ======
+  // ====== MODAL ======
+  function showGalleryScreen() {
+    if (galleryScreen) galleryScreen.hidden = false;
+    if (addScreen)     addScreen.hidden     = true;
+    buildThumbs();
+  }
+  function showAddPhotoScreen() {
+    if (galleryScreen) galleryScreen.hidden = true;
+    if (addScreen)     addScreen.hidden     = false;
+  }
+
   function showPlaceholder() {
     if (uploadPlaceholder) uploadPlaceholder.hidden = false;
-    if (previewWrap) previewWrap.hidden = true;
-    if (previewImg)  previewImg.src = '';
+    if (previewWrap)       previewWrap.hidden = true;
+    if (previewImg)        previewImg.src = '';
   }
   function resetModalForm() {
     if (modalForm) modalForm.reset();
@@ -144,10 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalErrorEl) { modalErrorEl.style.display = 'none'; modalErrorEl.textContent = ''; }
     enableSubmitIfValid();
   }
+
   function openModal() {
     if (!modalEl) return;
+    showGalleryScreen();
     resetModalForm();
-    populateCategorySelect();          // uses allCategories (same source as filters)
+    populateCategorySelect();
     modalEl.removeAttribute('hidden');
     modalEl.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -160,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
     resetModalForm();
   }
 
-  // Open only if logged in
   if (editBtn) {
     editBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -175,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   if (modalEl) {
-    // click backdrop to close (only if click is exactly the overlay)
     modalEl.addEventListener('click', (e) => {
       if (e.target === modalEl) closeModal();
     });
@@ -184,10 +207,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape' && modalEl && !modalEl.hasAttribute('hidden')) closeModal();
   });
 
-  // ====== MODAL: CATEGORY SELECT (from same categories used for filters) ======
+  // ====== CATEGORY SELECT ======
   function populateCategorySelect() {
     if (!categorySelect) return;
-    // keep placeholder
     categorySelect.innerHTML = '<option value="">Select a category…</option>';
     for (let i = 0; i < allCategories.length; i++) {
       const c = allCategories[i];
@@ -198,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ====== MODAL: IMAGE PREVIEW + FORM GUARD ======
+  // ====== IMAGE PREVIEW + FORM GUARD ======
   function enableSubmitIfValid() {
     const hasFile  = imageInput && imageInput.files && imageInput.files[0];
     const hasTitle = titleInput && titleInput.value.trim().length > 0;
@@ -219,7 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // 4 MB max per brief
       if (file.size > 4 * 1024 * 1024) {
         modalErrorEl.textContent = 'File is too large (max 4 MB).';
         modalErrorEl.style.display = 'block';
@@ -233,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
       reader.onload = (ev) => {
         if (previewImg) previewImg.src = ev.target.result;
         if (uploadPlaceholder) uploadPlaceholder.hidden = true;
-        if (previewWrap) previewWrap.hidden = false;
+        if (previewWrap)       previewWrap.hidden = false;
         enableSubmitIfValid();
       };
       reader.readAsDataURL(file);
@@ -242,20 +263,136 @@ document.addEventListener('DOMContentLoaded', () => {
   if (titleInput)     titleInput.addEventListener('input',  enableSubmitIfValid);
   if (categorySelect) categorySelect.addEventListener('change', enableSubmitIfValid);
 
-  // ====== AUTH LINK BEHAVIOUR ======
-  updateAuthLinks(); // run once after DOM is ready
+  // ====== SCREEN SWITCHING ======
+  if (openAddBtn) {
+    openAddBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      showAddPhotoScreen();
+    });
+  }
+  if (backBtn) {
+    backBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      showGalleryScreen();
+    });
+  }
+
+  // ====== THUMBNAILS + DELETE ======
+  function buildThumbs() {
+    if (!thumbsWrap) return;
+    thumbsWrap.innerHTML = '';
+
+    if (!Array.isArray(allWorks) || allWorks.length === 0) {
+      const p = document.createElement('p');
+      p.textContent = 'No photos yet.';
+      p.style.textAlign = 'center';
+      p.style.color = '#6b7280';
+      thumbsWrap.appendChild(p);
+      return;
+    }
+
+    for (let i = 0; i < allWorks.length; i++) {
+      const w = allWorks[i];
+      const fig = document.createElement('figure');
+
+      const img = document.createElement('img');
+      img.src = w.imageUrl;
+      img.alt = w.title || 'Photo';
+      fig.appendChild(img);
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'thumb-delete';
+      delBtn.type = 'button';
+      delBtn.textContent = '×';
+      delBtn.title = 'Delete';
+      delBtn.addEventListener('click', () => deleteWork(w.id));
+      fig.appendChild(delBtn);
+
+      thumbsWrap.appendChild(fig);
+    }
+  }
+
+  async function deleteWork(id) {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/works/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        alert('Delete failed.');
+        return;
+      }
+
+      allWorks = await fetchWorks();
+      showWorks(allWorks);
+      buildThumbs();
+    } catch (err) {
+      console.error('Delete error:', err);
+    }
+  }
+
+  // ====== ADD PHOTO SUBMIT ======
+  if (modalForm) {
+    modalForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      if (!imageInput.files[0]) return;
+
+      const fd = new FormData();
+      fd.append('image', imageInput.files[0]);
+      fd.append('title', titleInput.value.trim());
+      fd.append('category', categorySelect.value);
+
+      try {
+        const res = await fetch(`${API_BASE}/works`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: fd,
+        });
+
+        if (!res.ok) {
+          if (modalErrorEl) {
+            modalErrorEl.textContent = 'Upload failed. Please check your inputs.';
+            modalErrorEl.style.display = 'block';
+          }
+          return;
+        }
+
+        await res.json();
+        allWorks = await fetchWorks();
+        showWorks(allWorks);
+        buildThumbs();
+
+        resetModalForm();
+        showGalleryScreen();
+      } catch (err) {
+        console.error('Upload error:', err);
+        if (modalErrorEl) {
+          modalErrorEl.textContent = 'Something went wrong. Try again.';
+          modalErrorEl.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  // ====== AUTH ======
+  updateAuthLinks();
 
   if (logoutLink) {
     logoutLink.addEventListener('click', (e) => {
       e.preventDefault();
       localStorage.removeItem('token');
-      localStorage.removeItem('role'); // optional, if you set it
-      updateAuthLinks();               // hides Edit + shows Login
+      updateAuthLinks();
       window.location.href = 'index.html';
     });
   }
 
-  // ====== INITIAL LOAD ======
+  // ====== INIT ======
   async function init() {
     try {
       clearAll();
@@ -263,6 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
       allCategories = await fetchCategories();
       showWorks(allWorks);
       buildFilters(allCategories);
+      buildThumbs();
       console.log('Init done:', { works: allWorks.length, categories: allCategories.length });
     } catch (err) {
       console.error('Init failed:', err);
